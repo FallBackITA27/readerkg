@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use rkg_utils::header::{combo::weight_class::GetWeightClass, location::constants::Version};
+use rkg_utils::{footer::{FooterType, sp_footer}, header::{combo::weight_class::GetWeightClass, location::constants::Version}};
 
 fn convert_tabs_to_spaces(v: String) -> String {
     let lines = v.split('\n').collect::<Vec<&str>>();
@@ -147,6 +147,8 @@ fn print_verbose(ghost: rkg_utils::Ghost) {
 
     writeln!(out).unwrap();
     writeln!(out, "Controller\t: {}", header.controller()).unwrap();
+    writeln!(out, "Ghost Type\t: {}", header.ghost_type()).unwrap();
+
     writeln!(out, "Date Set\t: {}", header.date_set()).unwrap();
     writeln!(
         out,
@@ -191,6 +193,16 @@ fn print_simple(ghost: rkg_utils::Ghost) {
         }
     )
     .unwrap();
+
+    match ghost.footer() {
+        None => (),
+        Some(FooterType::CTGPFooter(ctgp_footer)) => {
+            writeln!(out, "CTGP Footer Version\t: {}", ctgp_footer.footer_version()).unwrap();
+        }
+        Some(FooterType::SPFooter(sp_footer)) => {
+            writeln!(out, "MKW-SP Footer Version\t: {}", sp_footer.footer_version()).unwrap();
+        }
+    };
 
     println!("{}", convert_tabs_to_spaces(out));
 }
