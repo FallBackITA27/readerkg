@@ -1,4 +1,3 @@
-
 pub struct Args {
     pub file_path: Option<String>,
     pub verbose: bool,

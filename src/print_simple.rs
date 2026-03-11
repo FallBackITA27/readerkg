@@ -3,7 +3,7 @@ use rkg_utils::{footer::FooterType, header::in_game_time::InGameTime};
 use crate::tabwriter::TabsWriter;
 use std::fmt::Write;
 
-pub fn print_simple(ghost: rkg_utils::Ghost) -> TabsWriter{
+pub fn print_simple(ghost: rkg_utils::Ghost) -> TabsWriter {
     let mut out = TabsWriter::default();
 
     let header = ghost.header();

@@ -1,6 +1,9 @@
 use std::fmt::Write;
 
-use rkg_utils::{footer::FooterType, header::{in_game_time::InGameTime, location::constants::Version}};
+use rkg_utils::{
+    footer::FooterType,
+    header::{in_game_time::InGameTime, location::constants::Version, combo::weight_class::GetWeightClass},
+};
 
 use crate::tabwriter::TabsWriter;
 
@@ -58,8 +61,12 @@ pub fn print_verbose(ghost: rkg_utils::Ghost) -> TabsWriter {
 
     match footer {
         None => writeln!(out, "Time\t: {}", header.finish_time()).unwrap(),
-        Some(FooterType::SPFooter(sp_footer)) => writeln!(out, "Time\t: {}", sp_footer.exact_finish_time()).unwrap(),
-        Some(FooterType::CTGPFooter(ctgp_footer)) => writeln!(out, "Time\t: {}", ctgp_footer.exact_finish_time()).unwrap(),
+        Some(FooterType::SPFooter(sp_footer)) => {
+            writeln!(out, "Time\t: {}", sp_footer.exact_finish_time()).unwrap()
+        }
+        Some(FooterType::CTGPFooter(ctgp_footer)) => {
+            writeln!(out, "Time\t: {}", ctgp_footer.exact_finish_time()).unwrap()
+        }
     }
     writeln!(out, "Lap Count\t: {}", header.lap_count()).unwrap();
     match footer {
@@ -167,4 +174,3 @@ pub fn print_verbose(ghost: rkg_utils::Ghost) -> TabsWriter {
 
     out
 }
-

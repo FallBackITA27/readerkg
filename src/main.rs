@@ -1,9 +1,8 @@
 use crate::args::Args;
-mod tabwriter;
 mod args;
 mod print_simple;
 mod print_verbose;
-
+mod tabwriter;
 
 fn main() {
     let mut args = std::env::args();
@@ -18,9 +17,11 @@ fn main() {
     let ghost = rkg_utils::Ghost::new_from_file(final_args.file_path.unwrap()).unwrap();
     println!("Ghost Read Successfully:");
 
-    print!("{}", match final_args.verbose {
-        false => print_simple::print_simple(ghost),
-        true => print_verbose::print_verbose(ghost),
-    })
+    print!(
+        "{}",
+        match final_args.verbose {
+            false => print_simple::print_simple(ghost),
+            true => print_verbose::print_verbose(ghost),
+        }
+    )
 }
-
