@@ -12,5 +12,5 @@ note: there is no `man` page or `-h` flag in the program, so this is the only do
 
 |flag|parameters|description|
 |-|-|-|
-| -f | <path> | path to the rkg file to read |
+| -f | path | path to the rkg file to read |
 | -v |  | prints verbose data |
