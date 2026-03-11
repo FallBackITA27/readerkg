@@ -2,7 +2,9 @@ use std::fmt::Write;
 
 use rkg_utils::{
     footer::FooterType,
-    header::{in_game_time::InGameTime, location::constants::Version, combo::weight_class::GetWeightClass},
+    header::{
+        combo::weight_class::GetWeightClass, in_game_time::InGameTime, location::constants::Version,
+    },
 };
 
 use crate::tabwriter::TabsWriter;
@@ -119,17 +121,24 @@ pub fn print_verbose(ghost: rkg_utils::Ghost) -> TabsWriter {
     .unwrap();
     writeln!(out, "Compressed Data\t: {}", header.is_compressed()).unwrap();
 
-    writeln!(out).unwrap();
-    writeln!(out, "- Extra Data:").unwrap();
     match ghost.footer() {
         None => (),
         Some(FooterType::CTGPFooter(ctgp_footer)) => {
+            writeln!(out).unwrap();
+            writeln!(out, "- Extra Data:").unwrap();
             writeln!(
                 out,
                 "CTGP Footer Version\t: {}",
                 ctgp_footer.footer_version()
             )
             .unwrap();
+            writeln!(
+                out,
+                "Real Time Started\t: {}",
+                ctgp_footer.rtc_race_begins()
+            )
+            .unwrap();
+            writeln!(out, "Real Time Finished\t: {}", ctgp_footer.rtc_race_end()).unwrap();
             writeln!(
                 out,
                 "Time Paused\t: {}",
@@ -148,6 +157,8 @@ pub fn print_verbose(ghost: rkg_utils::Ghost) -> TabsWriter {
             writeln!(out, "Category\t: {}", (ctgp_footer.category())).unwrap();
         }
         Some(FooterType::SPFooter(sp_footer)) => {
+            writeln!(out).unwrap();
+            writeln!(out, "- Extra Data:").unwrap();
             writeln!(
                 out,
                 "MKW-SP Footer Version\t: {}",

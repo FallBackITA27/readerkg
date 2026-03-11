@@ -12,5 +12,5 @@ note: there is no `man` page or `-h` flag in the program, so this is the only do
 
 |flag|parameter|description|
 |:-:|:-:|:-:|
-| `-f` `--file` `--file-path` <span style='color:red'>*</span>  | path | path to the rkg file to read |
-| `-v` `--verbose` |  | prints verbose data |
+| `-f` <br> `--file` <br> `--file-path` | path | path to the rkg file to read |
+| `-v` <br> `--verbose` |  | prints verbose data |

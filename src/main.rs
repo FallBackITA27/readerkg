@@ -2,6 +2,7 @@ use crate::args::Args;
 mod args;
 mod print_simple;
 mod print_verbose;
+mod render_video;
 mod tabwriter;
 
 fn main() {
@@ -23,5 +24,7 @@ fn main() {
             false => print_simple::print_simple(ghost),
             true => print_verbose::print_verbose(ghost),
         }
-    )
+    );
+
+    render_video::render();
 }
