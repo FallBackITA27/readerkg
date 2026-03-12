@@ -16,7 +16,6 @@ impl Coordinate {
     }
 
     pub fn check_point_overlap(self, coordinate: Coordinate, width: i32) -> bool {
-        let width = width / 2;
         let range = -width..=width;
 
         range.contains(&(self.x - coordinate.x)) && range.contains(&(self.y - coordinate.y))

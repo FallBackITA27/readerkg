@@ -94,7 +94,7 @@ impl<const N: usize> DrawElement for Path<N> {
                     counter += 1u16;
                 }
 
-                skip = 10;
+                skip = 2;
             }
         }
 
