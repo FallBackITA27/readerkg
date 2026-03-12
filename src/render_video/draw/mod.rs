@@ -10,11 +10,21 @@ impl Coordinate {
         Self { x, y }
     }
 
+    pub fn as_f64(self) -> (f64, f64) {
+        (self.x as f64, self.y as f64)
+    }
+
     pub fn check_point_overlap(self, coordinate: Coordinate, width: i32) -> bool {
         let width = width / 2;
         let range = -width..=width;
 
         range.contains(&(self.x - coordinate.x)) && range.contains(&(self.y - coordinate.y))
+    }
+
+    pub fn get_distance(self, rhs: Coordinate) -> f64 {
+        let (x1, y1) = self.as_f64();
+        let (x2, y2) = rhs.as_f64();
+        ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt()
     }
 }
 
@@ -26,22 +36,54 @@ impl<const N: usize> Path<N> {
     }
 
     pub fn is_closed(&self) -> bool {
-        self.0[0] == self.0[N-1]
+        self.0[0] == self.0[N - 1]
     }
 
     pub fn coordinate_within(&self, coordinate: Coordinate) -> bool {
-        let internal_sum: f64 = 180.0 * ((N as f64) - 2.0);
         if !self.is_closed() {
             return false;
         }
-        for idx in 1..N {
-            let coord1 = self.0[idx-1];
-            let coord2 = self.0[idx];
 
-
-            
+        let (top_left, bottom_right) = self.bounding_box();
+        if top_left.x > coordinate.x
+            || top_left.y > coordinate.y
+            || bottom_right.x < coordinate.x
+            || bottom_right.y < coordinate.y
+        {
+            return false;
         }
-        false
+
+        let mut counter = 0;
+        let mut skip = 0;
+        for x in 0..=coordinate.x {
+            if skip > 0 {
+                skip -= 1;
+            }
+            let new_coordinate = Coordinate::new(x, coordinate.y);
+            if self.check_point_on_path(new_coordinate, 0) {
+                if skip == 0 {
+                    counter += 1u16;
+                }
+
+                skip = 10;
+            }
+        }
+
+        !counter.is_multiple_of(2)
+    }
+
+    pub fn bounding_box(self) -> (Coordinate, Coordinate) {
+        let (mut max_x, mut min_x, mut max_y, mut min_y) = (0, i32::MAX, 0, i32::MAX);
+        for idx in 0..N {
+            let coordinates = self.0[idx];
+            let (x, y) = (coordinates.x, coordinates.y);
+            max_x = std::cmp::max(max_x, x);
+            min_x = std::cmp::min(min_x, x);
+            max_y = std::cmp::max(max_y, y);
+            min_y = std::cmp::min(min_y, y);
+        }
+
+        (Coordinate::new(min_x, min_y), Coordinate::new(max_x, max_y))
     }
 
     pub fn check_point_on_path(&self, coordinate: Coordinate, width: i32) -> bool {
