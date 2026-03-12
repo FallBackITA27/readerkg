@@ -3,18 +3,20 @@ use std::path::Path;
 use ndarray::Array3;
 use video_rs::{Encoder, Time, encode::Settings};
 
-use crate::render_video::draw::Coordinate;
+use crate::render_video::draw::{Coordinate, DrawElement};
 
 pub mod draw;
 
 pub fn render() {
+    const WIDTH: usize = 2000;
+    const HEIGHT: usize = 2000;
     video_rs::init().unwrap();
-    let settings = Settings::preset_h264_yuv420p(1920, 1080, false);
+    let settings = Settings::preset_h264_yuv420p(WIDTH, HEIGHT, false);
     let mut encoder =
         Encoder::new(Path::new("test.mp4"), settings).expect("failed to create encoder");
 
-    let circle = draw::circle::Circle::new(draw::Coordinate::new(200, 200), 30.0, 2);
-    let path = draw::Path::new([
+    let circle = draw::circle::Circle::new(draw::Coordinate::new(200, 200), 30.0);
+    let path = draw::path::Path::new([
         draw::Coordinate::new(100, 100),
         draw::Coordinate::new(50, 150),
         draw::Coordinate::new(100, 200),
@@ -26,12 +28,12 @@ pub fn render() {
     let duration: Time = Time::from_nth_of_a_second(60);
     let mut position = Time::zero();
     for i in 0..256 {
-        let frame = Array3::from_shape_fn((1920, 1080, 3), |(y, x, c)| {
+        let frame = Array3::from_shape_fn((WIDTH, HEIGHT, 3), |(y, x, c)| {
             let coordinate = Coordinate::new((x - i) as i32, y as i32);
             match (
-                circle.check_point_on_line(coordinate),
-                path.check_point_on_path(coordinate, 2),
-                path.coordinate_within(coordinate),
+                circle.coordinate_in_path(coordinate, 2),
+                path.coordinate_in_path(coordinate, 2),
+                path.coordinate_inside(coordinate) || circle.coordinate_inside(coordinate),
             ) {
                 (_, _, true) => [0, 0, 0xff][c],
                 (true, true, _) => 0xff,

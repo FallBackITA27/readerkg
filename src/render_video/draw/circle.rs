@@ -1,31 +1,16 @@
-use crate::render_video::draw::Coordinate;
+use crate::render_video::draw::{Coordinate, DrawElement};
 
 pub struct Circle {
     center_coords: Coordinate,
     radius: f64,
-    line_width: u8,
 }
 
 impl Circle {
-    pub const fn new(center_coords: Coordinate, radius: f64, line_width: u8) -> Self {
+    pub const fn new(center_coords: Coordinate, radius: f64) -> Self {
         Self {
             center_coords,
             radius,
-            line_width,
         }
-    }
-
-    pub fn check_point_on_line(&self, coord: Coordinate) -> bool {
-        let (x, y) = (
-            coord.x - self.center_coords.x,
-            coord.y - self.center_coords.y,
-        );
-        let (x, y) = (x as f64, y as f64);
-        let (x, y) = (x / self.radius, y / self.radius);
-        let angle = x.atan2(y);
-
-        self.calc_point(angle)
-            .check_point_overlap(coord, self.line_width as i32)
     }
 
     pub fn calc_point(&self, angle: f64) -> Coordinate {
@@ -36,13 +21,23 @@ impl Circle {
         );
         Coordinate::new(sin as i32, cos as i32)
     }
+}
 
-    pub fn calc_points(&self) -> Vec<Coordinate> {
-        const PRECISION: f64 = 1000000.0;
-        (0..=((std::f64::consts::PI * PRECISION) as u32))
-            .map(|v| v as f64)
-            .map(|v| v * PRECISION)
-            .map(|v| self.calc_point(v))
-            .collect()
+impl DrawElement for Circle {
+    fn coordinate_inside(&self, coordinate: Coordinate) -> bool {
+        self.radius > coordinate.get_distance(self.center_coords)
+        
+    }
+    fn coordinate_in_path(&self, coordinate: Coordinate, width: i32) -> bool {
+        let (x, y) = (
+            coordinate.x - self.center_coords.x,
+            coordinate.y - self.center_coords.y,
+        );
+        let (x, y) = (x as f64, y as f64);
+        let (x, y) = (x / self.radius, y / self.radius);
+        let angle = x.atan2(y);
+
+        self.calc_point(angle)
+            .check_point_overlap(coordinate, width)
     }
 }
