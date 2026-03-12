@@ -18,6 +18,8 @@ fn main() {
     let ghost = rkg_utils::Ghost::new_from_file(final_args.file_path.unwrap()).unwrap();
     println!("Ghost Read Successfully:");
 
+    render_video::render(&ghost);
+
     print!(
         "{}",
         match final_args.verbose {
@@ -26,5 +28,4 @@ fn main() {
         }
     );
 
-    render_video::render();
 }

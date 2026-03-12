@@ -1,13 +1,14 @@
 use std::path::Path;
 
 use ndarray::Array3;
+use rkg_utils::{Ghost, input_data::face_input::FaceButton};
 use video_rs::{Encoder, Time, encode::Settings};
 
 use crate::render_video::draw::{Coordinate, DrawElement};
 
 pub mod draw;
 
-pub fn render() {
+pub fn render(ghost: &Ghost) {
     const WIDTH: usize = 2000;
     const HEIGHT: usize = 2000;
     video_rs::init().unwrap();
@@ -27,20 +28,21 @@ pub fn render() {
 
     let duration: Time = Time::from_nth_of_a_second(60);
     let mut position = Time::zero();
-    for i in 0..256 {
+    for (frame_number, input) in ghost.input_data().inputs().iter().enumerate() {
+        println!("{frame_number} / {}", ghost.input_data().inputs().len());
+
         let frame = Array3::from_shape_fn((WIDTH, HEIGHT, 3), |(y, x, c)| {
-            let coordinate = Coordinate::new((x - i) as i32, y as i32);
-            match (
-                circle.coordinate_in_path(coordinate, 2),
-                path.coordinate_in_path(coordinate, 2),
-                path.coordinate_inside(coordinate) || circle.coordinate_inside(coordinate),
-            ) {
-                (_, _, true) => [0, 0, 0xff][c],
-                (true, true, _) => 0xff,
-                (true, false, _) => [0xff, 0, 0][c],
-                (false, true, _) => [0, 0xff, 0][c],
-                (false, false, _) => 0x00,
+            let coordinate = Coordinate::new(x as i32, y as i32);
+
+            if circle.coordinate_in_path(coordinate, 2) {
+                return 0xFF;
             }
+
+            if input.face_buttons().contains(&FaceButton::Accelerator) && circle.coordinate_inside(coordinate) {
+                return [0, 0xFF, 0][c];
+            }
+
+            0x00
         });
 
         encoder
