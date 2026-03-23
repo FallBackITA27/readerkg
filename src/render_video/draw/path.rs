@@ -1,10 +1,9 @@
 use crate::render_video::draw::{Coordinate, DrawElement};
 
-
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Path<const N: usize>([Coordinate; N]);
 impl<const N: usize> Path<N> {
-    pub fn new(v: [Coordinate; N]) -> Self {
+    pub const fn new(v: [Coordinate; N]) -> Self {
         Self(v)
     }
 
@@ -26,6 +25,36 @@ impl<const N: usize> Path<N> {
         (Coordinate::new(min_x, min_y), Coordinate::new(max_x, max_y))
     }
 
+    pub fn raytrace_point(&self, coordinate: Coordinate) -> u16 {
+        if !self.is_closed() {
+            return 0;
+        }
+
+        let (top_left, bottom_right) = self.bounding_box();
+        if top_left.x > coordinate.x
+            || top_left.y > coordinate.y
+            || bottom_right.x < coordinate.x
+            || bottom_right.y < coordinate.y
+        {
+            return 0;
+        }
+
+        let mut counter: u16 = 0;
+        let mut skip: u8 = 0;
+        for x in top_left.x..=coordinate.x {
+            skip = skip.saturating_sub(1);
+
+            let new_coordinate = Coordinate::new(x, coordinate.y);
+            if self.coordinate_in_path(new_coordinate, 0) {
+                if skip == 0 {
+                    counter += 1;
+                }
+                skip = 3
+            }
+        }
+
+        counter
+    }
 }
 
 impl<const N: usize> DrawElement for Path<N> {
@@ -69,38 +98,28 @@ impl<const N: usize> DrawElement for Path<N> {
     }
 
     fn coordinate_inside(&self, coordinate: Coordinate) -> bool {
-        if !self.is_closed() {
-            return false;
-        }
-
-        let (top_left, bottom_right) = self.bounding_box();
-        if top_left.x > coordinate.x
-            || top_left.y > coordinate.y
-            || bottom_right.x < coordinate.x
-            || bottom_right.y < coordinate.y
-        {
-            return false;
-        }
-
-        let mut counter = 0;
-        let mut skip = 0;
-        for x in 0..=coordinate.x {
-            if skip > 0 {
-                skip -= 1;
-            }
-            let new_coordinate = Coordinate::new(x, coordinate.y);
-            if self.coordinate_in_path(new_coordinate, 0) {
-                if skip == 0 {
-                    counter += 1u16;
+        let raytrace_counter = self.raytrace_point(coordinate);
+        match raytrace_counter.is_multiple_of(2) {
+            true => {
+                let (top_left, bottom_right) = self.bounding_box();
+                if raytrace_counter > 0
+                    && top_left.x <= coordinate.x
+                    && top_left.y <= coordinate.y
+                    && bottom_right.x >= coordinate.x
+                    && bottom_right.y >= coordinate.y
+                {
+                    println!("{}, {}: {raytrace_counter}", coordinate.x, coordinate.y);
                 }
 
-                skip = 2;
+                false
+            }
+            false => {
+                let (_, bottom_right) = self.bounding_box();
+                let new_coordinate = Coordinate::new(bottom_right.x, coordinate.y);
+                let edge_raytrace = self.raytrace_point(new_coordinate);
+
+                edge_raytrace != raytrace_counter
             }
         }
-
-        !counter.is_multiple_of(2)
     }
-
 }
-
-

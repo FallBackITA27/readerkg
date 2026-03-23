@@ -27,5 +27,4 @@ fn main() {
             true => print_verbose::print_verbose(ghost),
         }
     );
-
 }

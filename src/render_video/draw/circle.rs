@@ -26,7 +26,6 @@ impl Circle {
 impl DrawElement for Circle {
     fn coordinate_inside(&self, coordinate: Coordinate) -> bool {
         self.radius > coordinate.get_distance(self.center_coords)
-        
     }
     fn coordinate_in_path(&self, coordinate: Coordinate, width: i32) -> bool {
         let (x, y) = (

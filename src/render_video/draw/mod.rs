@@ -1,5 +1,8 @@
 pub mod circle;
+pub mod dpad;
+pub mod map;
 pub mod path;
+pub mod analog;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Coordinate {
@@ -7,7 +10,7 @@ pub struct Coordinate {
     pub y: i32,
 }
 impl Coordinate {
-    pub fn new(x: i32, y: i32) -> Self {
+    pub const fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
 
